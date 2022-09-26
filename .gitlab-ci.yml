@@ -9,6 +9,6 @@ before_script:
     - /usr/local/bin/earthly bootstrap
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 earthly:
-  stage: package-linux
+  stage: build
   script:
-    - earthly --ci --push -P +build
+    - earthly --ci --push -P +package-linux
