@@ -18,12 +18,15 @@ resource "digitalocean_droplet" "veilid-runner-1" {
   provisioner "remote-exec" {
     inline = [
       "apt-get update",
-      "apt-get -y install ca-certificates curl gnupg lsb-release",
-      "mkdir -p /etc/apt/keyrings/",
-      "curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg",
-      "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
-      "apt-get update",
-      "apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin"
+      "apt-get install python3-apt -y"
     ]
   }
+
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u root -i '${self.ipv4_address},' --private-key ${var.pvt_key} docker-install.yml"
+  }
+}
+
+output "droplet_ip_address" {
+  value = digitalocean_droplet.veilid-runner-1
 }

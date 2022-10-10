@@ -1,0 +1,20 @@
+- name: Prepare Docker Executor
+  become: yes
+  hosts: all
+  tasks:
+    - name: Install Dependencies
+      ansible.builtin.apt:
+        pkg:
+        - ca-certificates
+        - curl
+        - gnupg
+        - lsb-release
+    - name: Install Docker Sources
+      ansible.builtin.script: ./docker-sources.sh
+    - name: Install Docker Packages
+      ansible.builtin.apt:
+        pkg:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin

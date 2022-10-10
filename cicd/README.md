@@ -15,7 +15,7 @@ droplet that we expect. First, we will export our access token as an environment
 variable:
 
 ```shell
-export DO_PAT="$(cat .config/doctl/config.yaml | yq e '.access-token' -)"
+export DO_PAT="$(cat ~/.config/doctl/config.yaml | yq e '.access-token' -)"
 ```
 
 Then we can run our plan:
@@ -23,7 +23,8 @@ Then we can run our plan:
 ```shell
 terraform plan \
   -var "do_token=${DO_PAT}" \
-  -var "pvt_key=$HOME/.ssh/id_rsa"
+  -var "pvt_key=$HOME/.ssh/id_rsa" \
+  -var "ssh_key=$KEYNAME"
 ```
 
 If the output is what was expected, we may now create the droplet:
@@ -31,7 +32,17 @@ If the output is what was expected, we may now create the droplet:
 ```shell
 terraform apply \
   -var "do_token=${DO_PAT}" \
-  -var "pvt_key=$HOME/.ssh/id_rsa"
+  -var "pvt_key=$HOME/.ssh/id_rsa" \
+  -var "ssh_key=$KEYNAME"
+```
+
+## Destroying the runner
+
+```shell
+terraform destroy \
+  -var "do_token=${DO_PAT}" \
+  -var "pvt_key=$HOME/.ssh/id_rsa" \
+  -var "ssh_key=$KEYNAME"
 ```
 
 **TODO**
