@@ -2,19 +2,26 @@
   become: yes
   hosts: all
   tasks:
-    - name: Install Dependencies
+    - name: install-dependencies
       ansible.builtin.apt:
         pkg:
         - ca-certificates
         - curl
         - gnupg
         - lsb-release
-    - name: Install Docker Sources
+        - git
+    - name: install-docker-sources
       ansible.builtin.script: ./docker-sources.sh
-    - name: Install Docker Packages
+    - name: install-docker-packages
       ansible.builtin.apt:
         pkg:
           - docker-ce
           - docker-ce-cli
           - containerd.io
           - docker-compose-plugin
+    - name: install-earthly
+      ansible.builtin.script: ./earthly-setup.sh
+    - name: install-gitlab-runner
+      ansible.builtin.script: ./gitlab-runner.sh install
+    - name: register-gitlab-runner
+      ansible.buildin.script: ./gitlab-runner.sh register
