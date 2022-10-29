@@ -23,7 +23,13 @@ resource "digitalocean_droplet" "veilid-runner-1" {
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u root -i '${self.ipv4_address},' --private-key ${var.pvt_key} docker-install.yml"
+    command = <<EOF
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u root \
+  -i '${self.ipv4_address},' \
+  --private-key ${var.pvt_key} \
+  -e "regkey=${var.reg_key} ci_server_url=${var.ci_server_url} runner_name=${var.runner_name}" \
+  docker-install.yml
+EOF
   }
 }
 

@@ -24,4 +24,8 @@
     - name: install-gitlab-runner
       ansible.builtin.script: ./gitlab-runner.sh install
     - name: register-gitlab-runner
-      ansible.buildin.script: ./gitlab-runner.sh register
+      ansible.builtin.script: ./gitlab-runner.sh register
+      environment:
+        CI_SERVER_URL: "{{ ci_server_url }}"
+        REGISTRATION_TOKEN: "{{ regkey }}"
+        RUNNER_NAME: "{{ runner_name }}"

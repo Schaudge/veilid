@@ -10,6 +10,9 @@ terraform {
 variable "do_token" {}
 variable "ssh_key" {}
 variable "pvt_key" {}
+variable "reg_key" {}
+variable "ci_server_url" {}
+variable "runner_name" {}
 
 provider "digitalocean" {
   token = var.do_token

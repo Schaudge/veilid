@@ -23,8 +23,9 @@ Then we can run our plan:
 ```shell
 terraform plan \
   -var "do_token=${DO_PAT}" \
-  -var "pvt_key=$HOME/.ssh/id_rsa" \
-  -var "ssh_key=$KEYNAME"
+  -var "pvt_key=${HOME}/.ssh/id_rsa" \
+  -var "ssh_key=${KEYNAME}" \
+  -var "reg_key=${GITLAB_REG_KEY}"
 ```
 
 If the output is what was expected, we may now create the droplet:
@@ -32,8 +33,9 @@ If the output is what was expected, we may now create the droplet:
 ```shell
 terraform apply \
   -var "do_token=${DO_PAT}" \
-  -var "pvt_key=$HOME/.ssh/id_rsa" \
-  -var "ssh_key=$KEYNAME"
+  -var "pvt_key=${HOME}/.ssh/id_rsa" \
+  -var "ssh_key=${KEYNAME}"
+  -var "reg_key=${GITLAB_REG_KEY}"
 ```
 
 ## Destroying the runner
@@ -41,11 +43,6 @@ terraform apply \
 ```shell
 terraform destroy \
   -var "do_token=${DO_PAT}" \
-  -var "pvt_key=$HOME/.ssh/id_rsa" \
-  -var "ssh_key=$KEYNAME"
+  -var "pvt_key=${HOME}/.ssh/id_rsa" \
+  -var "ssh_key=${KEYNAME}"
 ```
-
-**TODO**
-
-Update the configuration to accept the runner registration token as a variable
-and automatically self-register.
