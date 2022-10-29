@@ -13,4 +13,4 @@ earthly:
     - linux
     - amd64
   script:
-    - earthly --ci --push --buildkit-host localhost:8373 -P +package-linux
+    - earthly --ci --buildkit-host localhost:8373 -P +package-linux
