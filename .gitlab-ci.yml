@@ -5,6 +5,11 @@ variables:
   DOCKER_HOST: tcp://docker:2375
   EARTHLY_EXEC_CMD: "/bin/sh"
 
+image: earthly/earthly:v0.6.27
+
+before_script:
+  - earthly bootstrap
+
 earthly:
   stage: build
   tags:
