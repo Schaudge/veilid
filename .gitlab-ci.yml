@@ -7,13 +7,10 @@ variables:
 
 image: earthly/earthly:v0.6.27
 
-before_script:
-  - earthly bootstrap
-
 earthly:
   stage: build
   tags:
     - linux
     - amd64
   script:
-    - earthly --ci --push -P +package-linux
+    - earthly --ci --push --buildkit-host localhost:8373 -P +package-linux
