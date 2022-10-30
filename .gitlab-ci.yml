@@ -13,4 +13,4 @@ earthly:
     - linux
     - amd64
   script:
-    - earthly --ci --buildkit-host localhost:8373 --allow-privileged +package-linux
+    - earthly --ci --buildkit-host tcp://127.0.0.1:8373 --allow-privileged +package-linux
