@@ -28,7 +28,7 @@ ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u root \
   -i '${self.ipv4_address},' \
   --private-key ${var.pvt_key} \
   -e "regkey=${var.reg_key} ci_server_url=${var.ci_server_url} runner_name=${var.runner_name}" \
-  docker-install.yml
+  docker-install.yaml
 EOF
   }
 }
