@@ -1,13 +1,8 @@
-variables:
-  DOCKER_HOST: tcp://docker:2375
-  EARTHLY_EXEC_CMD: "/bin/sh"
-
-image: earthly/earthly:v0.6.28
-
 earthly:
   stage: build
+  image: earthly/earthly:v0.6.28
   tags:
     - linux
     - amd64
   script:
-    - earthly --ci --buildkit-host tcp://127.0.0.1:8373 --allow-privileged +package-linux
+    - earthly --ci --buildkit_host tcp://127.0.0.1:8373 --allow-privileged +package-linux
