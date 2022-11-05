@@ -17,6 +17,7 @@ register () {
     --url "${CI_SERVER_URL}" \
     --registration-token "${REGISTRATION_TOKEN}" \
     --description "${RUNNER_NAME}" \
+    --template-config /srv/gitlab-runner/config/template.config.toml \
     --tag-list "amd64,linux"
 }
 

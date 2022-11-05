@@ -1,0 +1,6 @@
+[[runners]]
+  executor = "docker"
+  [runners.docker]
+    tls_verify = false
+    image = "alpine:latest"
+    privileged = true
