@@ -21,10 +21,14 @@
           - docker-compose-plugin
     - name: install-earthly
       ansible.builtin.script: ./earthly-setup.sh
-    - name: install-gitlab-runner-config
+    - name: copy-config
       ansible.builtin.copy:
-        src: template.config.toml
-        dest: /srv/gitlab-runner/config/
+        src: ./config/config.toml
+        dest: /etc/gitlab-runner/
+    - name: copy-config-template
+      ansible.builtin.copy:
+        src: ./config/template.config.toml
+        dest: /tmp/gitlab-runner/
     - name: install-gitlab-runner
       ansible.builtin.script: ./gitlab-runner.sh install
     - name: register-gitlab-runner

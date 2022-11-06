@@ -9,15 +9,19 @@ install () {
 }
 
 register () {
+
   docker run --rm -it \
-    -v /srv/gitlab-runner/config:/etc/gitlab-runner gitlab/gitlab-runner register \
+    -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+    -v /tmp/gitlab-runner:/tmp/gitlab-runner \
+    gitlab/gitlab-runner register \
+    --config /etc/gitlab-runner/config.toml \
+    --template-config /tmp/gitlab-runner/template.config.toml \
     --non-interactive \
     --executor "docker" \
     --docker-image alpine:latest \
     --url "${CI_SERVER_URL}" \
     --registration-token "${REGISTRATION_TOKEN}" \
     --description "${RUNNER_NAME}" \
-    --template-config /srv/gitlab-runner/config/template.config.toml \
     --tag-list "amd64,linux"
 }
 
