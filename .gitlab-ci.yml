@@ -1,5 +1,6 @@
 variables:
   NO_DOCKER: 1
+  BUILDKIT_HOST: tcp://earthly-buildkit:8372
 
 earthly:
   stage: build
@@ -8,4 +9,4 @@ earthly:
     - linux
     - amd64
   script:
-    - earthly --ci --buildkit_host tcp://earthly-buildkit:8372 --allow-privileged +package-linux
+    - earthly --ci -P +package-linux
