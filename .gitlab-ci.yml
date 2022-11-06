@@ -1,5 +1,5 @@
 variables:
-  #NO_DOCKER: 1
+  DOCKER_HOST: /var/run/docker.sock
   BUILDKIT_HOST: tcp://earthly-buildkit:8372
   EARTHLY_EXEC_CMD: "/bin/sh"
 
