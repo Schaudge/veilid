@@ -13,10 +13,8 @@ check_interval = 0
   [runners.docker]
     privileged = true
     tls_verify = false
-    network_mode = host
     disable_entrypoint_overwrite = false
     oom_kill_disable = false
     disable_cache = false
-    volumes = ["/cache"]
     shm_size = 0
 
