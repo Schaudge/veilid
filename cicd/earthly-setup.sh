@@ -3,6 +3,7 @@
 docker run -d --restart always \
   --privileged \
   --name earthly-buildkit \
+  --network host \
   -t -p 8372:8372 \
   -v earthly-tmp:/tmp/earthly:rw \
   -v /var/run/docker.sock:/var/run/docker.sock \
