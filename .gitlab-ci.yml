@@ -1,6 +1,6 @@
 variables:
   NO_DOCKER: 1
-  BUILDKIT_HOST: tcp://127.0.0.1:8372
+  BUILDKIT_HOST: tcp://veilid-runner-1:8372
   EARTHLY_EXEC_CMD: "/bin/sh"
 
 earthly:
