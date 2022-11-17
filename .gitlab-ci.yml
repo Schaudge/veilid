@@ -1,5 +1,5 @@
 variables:
-  NO_DOCKER: 1
+  #  NO_DOCKER: 1
   BUILDKIT_HOST: tcp://veilid-runner-1:8372
   EARTHLY_EXEC_CMD: "/bin/sh"
 

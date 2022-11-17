@@ -5,6 +5,7 @@ install () {
   docker run -d --name gitlab-runner --restart always \
     -v /srv/gitlab-runner/config:/etc/gitlab-runner \
     -v /var/run/docker.sock:/var/run/docker.sock \
+    --network="host" \
     gitlab/gitlab-runner:latest
 }
 
@@ -13,6 +14,7 @@ register () {
   docker run --rm -it \
     -v /srv/gitlab-runner/config:/etc/gitlab-runner \
     -v /tmp/gitlab-runner:/tmp/gitlab-runner \
+    --network="host" \
     gitlab/gitlab-runner register \
     --config /etc/gitlab-runner/config.toml \
     --template-config /tmp/gitlab-runner/template.config.toml \

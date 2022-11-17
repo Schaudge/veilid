@@ -8,4 +8,5 @@ docker run -d --restart always \
   -v earthly-tmp:/tmp/earthly:rw \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --env BUILDKIT_TCP_TRANSPORT_ENABLED=true \
+  --env CNI_MTU=1500 \
   earthly/buildkitd:v0.6.28
