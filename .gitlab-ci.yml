@@ -10,4 +10,4 @@ earthly:
     - linux
     - amd64
   script:
-    - earthly --ci -P --network=host +package-linux
+    - earthly --ci -P +package-linux
