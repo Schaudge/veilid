@@ -3,7 +3,6 @@ variables:
   CNI_MTU: 1500
   BUILDKIT_HOST: tcp://veilid-runner-1:8372
   EARTHLY_EXEC_CMD: "/bin/sh"
-  EARTHLY_NO_CACHE: true
 
 earthly:
   stage: build
@@ -12,4 +11,4 @@ earthly:
     - linux
     - amd64
   script:
-    - earthly --ci -P +package-linux
+    - earthly --ci -P --no-cache +package-linux
