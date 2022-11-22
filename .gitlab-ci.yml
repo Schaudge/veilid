@@ -10,5 +10,5 @@ earthly:
     - linux
     - amd64
   script:
-    - earthly --ci -P --no-cache -i +package-linux
+    - earthly -i -P --no-cache +package-linux
 
