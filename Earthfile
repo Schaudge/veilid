@@ -6,11 +6,6 @@ FROM --platform amd64 ubuntu:16.04
 
 # Install build prerequisites
 deps-base:
-    RUN echo "APT start"
-    RUN ping -c 1.1.1.1
-    RUN cat /etc/apt/sources.list
-    RUN cat /etc/resolv.conf
-    RUN echo "APT stop"
     RUN apt-get -y update
     RUN apt-get install -y iproute2 curl build-essential cmake libssl-dev openssl file git pkg-config libdbus-1-dev libdbus-glib-1-dev libgirepository1.0-dev libcairo2-dev 
 
