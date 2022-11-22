@@ -1,6 +1,5 @@
 variables:
   NO_DOCKER: 1
-  NETWORK_MODE: host
   BUILDKIT_HOST: tcp://veilid-runner-1:8372
   EARTHLY_EXEC_CMD: "/bin/sh"
 
@@ -12,3 +11,4 @@ earthly:
     - amd64
   script:
     - earthly --ci -P --no-cache +package-linux
+
