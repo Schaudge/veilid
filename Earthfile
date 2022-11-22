@@ -7,7 +7,6 @@ FROM --platform amd64 ubuntu:16.04
 # Install build prerequisites
 deps-base:
     RUN echo "APT start"
-    RUN nslookup 1.1.1.1
     RUN cat /etc/apt/sources.list
     RUN cat /etc/resolv.conf
     RUN echo "APT stop"
