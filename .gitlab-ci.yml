@@ -14,5 +14,7 @@ earthly:
   tags:
     - linux
     - amd64
+  cache:
+    key: 20221204-cache-for-dev
   script:
     - earthly --ci -P +package-linux
