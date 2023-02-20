@@ -7,17 +7,11 @@ FROM --platform amd64 ubuntu:16.04
 # Install build prerequisites
 deps-base:
     RUN apt-get -y update
-    RUN apt-get install -y iproute2 curl build-essential cmake libssl-dev openssl file git pkg-config libdbus-1-dev libdbus-glib-1-dev libgirepository1.0-dev libcairo2-dev checkinstall unzip
-
-# Install Cap'n Proto
-deps-capnp:
-    FROM +deps-base
-    COPY scripts/earthly/install_capnproto.sh /
-    RUN /bin/bash /install_capnproto.sh; rm /install_capnproto.sh
+    RUN apt-get install -y iproute2 curl build-essential cmake libssl-dev openssl file git pkg-config libdbus-1-dev libdbus-glib-1-dev libgirepository1.0-dev libcairo2-dev checkinstall unzip capnproto-c++-0.10.2
 
 # Install protoc
 deps-protoc:
-    FROM +deps-capnp
+    FROM +deps-base
     COPY scripts/earthly/install_protoc.sh /
     RUN /bin/bash /install_protoc.sh; rm /install_protoc.sh
 
