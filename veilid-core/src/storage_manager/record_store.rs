@@ -505,7 +505,7 @@ where
     /// This will force a garbage collection of the space immediately
     /// If zero is passed in here, a garbage collection will be performed of dead records
     /// without removing any live records
-    pub async fn reclaim_space(&mut self, space: usize) {
+    pub async fn _reclaim_space(&mut self, space: usize) {
         let mut reclaimed = 0usize;
         while reclaimed < space {
             if let Some((k, v)) = self.record_index.remove_lru() {

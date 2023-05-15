@@ -39,7 +39,7 @@ impl RoutedOperation {
         &self.data
     }
 
-    pub fn destructure(self) -> (Sequencing, Vec<Signature>, Nonce, Vec<u8>) {
+    pub fn _destructure(self) -> (Sequencing, Vec<Signature>, Nonce, Vec<u8>) {
         (self.sequencing, self.signatures, self.nonce, self.data)
     }
 
@@ -114,7 +114,7 @@ impl RPCOperationRoute {
     pub fn safety_route(&self) -> &SafetyRoute {
         &self.safety_route
     }
-    pub fn operation(&self) -> &RoutedOperation {
+    pub fn _operation(&self) -> &RoutedOperation {
         &self.operation
     }
     pub fn destructure(self) -> (SafetyRoute, RoutedOperation) {

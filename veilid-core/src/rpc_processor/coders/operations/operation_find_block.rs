@@ -10,18 +10,18 @@ pub struct RPCOperationFindBlockQ {
 }
 
 impl RPCOperationFindBlockQ {
-    pub fn new(block_id: TypedKey) -> Self {
+    pub fn _new(block_id: TypedKey) -> Self {
         Self { block_id }
     }
     pub fn validate(&mut self, _validate_context: &RPCValidateContext) -> Result<(), RPCError> {
         Ok(())
     }
 
-    pub fn block_id(&self) -> TypedKey {
+    pub fn _block_id(&self) -> TypedKey {
         self.block_id
     }
 
-    pub fn destructure(self) -> TypedKey {
+    pub fn _destructure(self) -> TypedKey {
         self.block_id
     }
 
@@ -52,7 +52,7 @@ pub struct RPCOperationFindBlockA {
 }
 
 impl RPCOperationFindBlockA {
-    pub fn new(
+    pub fn _new(
         data: Vec<u8>,
         suppliers: Vec<PeerInfo>,
         peers: Vec<PeerInfo>,
@@ -79,17 +79,17 @@ impl RPCOperationFindBlockA {
         Ok(())
     }
 
-    pub fn data(&self) -> &[u8] {
+    pub fn _data(&self) -> &[u8] {
         &self.data
     }
-    pub fn suppliers(&self) -> &[PeerInfo] {
+    pub fn _suppliers(&self) -> &[PeerInfo] {
         &self.suppliers
     }
-    pub fn peers(&self) -> &[PeerInfo] {
+    pub fn _peers(&self) -> &[PeerInfo] {
         &self.peers
     }
 
-    pub fn destructure(self) -> (Vec<u8>, Vec<PeerInfo>, Vec<PeerInfo>) {
+    pub fn _destructure(self) -> (Vec<u8>, Vec<PeerInfo>, Vec<PeerInfo>) {
         (self.data, self.suppliers, self.peers)
     }
     pub fn decode(reader: &veilid_capnp::operation_find_block_a::Reader) -> Result<Self, RPCError> {

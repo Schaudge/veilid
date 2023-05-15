@@ -6,8 +6,8 @@ struct BlockStoreInner {
 
 #[derive(Clone)]
 pub struct BlockStore {
-    config: VeilidConfig,
-    inner: Arc<Mutex<BlockStoreInner>>,
+    _config: VeilidConfig,
+    _inner: Arc<Mutex<BlockStoreInner>>,
 }
 
 impl BlockStore {

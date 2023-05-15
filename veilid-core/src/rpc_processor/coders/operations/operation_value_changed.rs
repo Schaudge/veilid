@@ -10,7 +10,7 @@ pub struct RPCOperationValueChanged {
 }
 
 impl RPCOperationValueChanged {
-    pub fn new(
+    pub fn _new(
         key: TypedKey,
         subkeys: Vec<ValueSubkeyRange>,
         count: u32,
@@ -29,19 +29,19 @@ impl RPCOperationValueChanged {
         Ok(())
     }
 
-    pub fn key(&self) -> &TypedKey {
+    pub fn _key(&self) -> &TypedKey {
         &self.key
     }
-    pub fn subkeys(&self) -> &[ValueSubkeyRange] {
+    pub fn _subkeys(&self) -> &[ValueSubkeyRange] {
         &self.subkeys
     }
-    pub fn count(&self) -> u32 {
+    pub fn _count(&self) -> u32 {
         self.count
     }
-    pub fn value(&self) -> &SignedValueData {
+    pub fn _value(&self) -> &SignedValueData {
         &self.value
     }
-    pub fn destructure(self) -> (TypedKey, Vec<ValueSubkeyRange>, u32, SignedValueData) {
+    pub fn _destructure(self) -> (TypedKey, Vec<ValueSubkeyRange>, u32, SignedValueData) {
         (self.key, self.subkeys, self.count, self.value)
     }
 

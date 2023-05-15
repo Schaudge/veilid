@@ -28,9 +28,9 @@ const FLUSH_RECORD_STORES_INTERVAL_SECS: u32 = 1;
 struct StorageManagerUnlockedInner {
     config: VeilidConfig,
     crypto: Crypto,
-    protected_store: ProtectedStore,
+    _protected_store: ProtectedStore,
     table_store: TableStore,
-    block_store: BlockStore,
+    _block_store: BlockStore,
 
     // Background processes
     flush_record_stores_task: TickTask<EyreReport>,
@@ -53,9 +53,9 @@ impl StorageManager {
         StorageManagerUnlockedInner {
             config,
             crypto,
-            protected_store,
+            _protected_store: protected_store,
             table_store,
-            block_store,
+            _block_store: block_store,
             flush_record_stores_task: TickTask::new(FLUSH_RECORD_STORES_INTERVAL_SECS),
         }
     }
@@ -396,7 +396,7 @@ impl StorageManager {
         expiration: Timestamp,
         count: u32,
     ) -> Result<Timestamp, VeilidAPIError> {
-        let inner = self.lock().await?;
+        let _inner = self.lock().await?;
         unimplemented!();
     }
 
@@ -405,7 +405,7 @@ impl StorageManager {
         key: TypedKey,
         subkeys: ValueSubkeyRangeSet,
     ) -> Result<bool, VeilidAPIError> {
-        let inner = self.lock().await?;
+        let _inner = self.lock().await?;
         unimplemented!();
     }
 }

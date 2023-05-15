@@ -4,6 +4,7 @@ struct BlockStoreInner {
     //
 }
 
+#[allow(dead_code)]
 #[derive(Clone)]
 pub struct BlockStore {
     config: VeilidConfig,

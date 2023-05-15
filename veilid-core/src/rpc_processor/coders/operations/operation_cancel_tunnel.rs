@@ -6,18 +6,18 @@ pub struct RPCOperationCancelTunnelQ {
 }
 
 impl RPCOperationCancelTunnelQ {
-    pub fn new(id: TunnelId) -> Self {
+    pub fn _new(id: TunnelId) -> Self {
         Self { id }
     }
     pub fn validate(&mut self, _validate_context: &RPCValidateContext) -> Result<(), RPCError> {
         Ok(())
     }
 
-    pub fn id(&self) -> TunnelId {
+    pub fn _id(&self) -> TunnelId {
         self.id
     }
 
-    pub fn destructure(self) -> TunnelId {
+    pub fn _destructure(self) -> TunnelId {
         self.id
     }
 
@@ -44,10 +44,10 @@ pub enum RPCOperationCancelTunnelA {
 }
 
 impl RPCOperationCancelTunnelA {
-    pub fn new_tunnel(id: TunnelId) -> Self {
+    pub fn _new_tunnel(id: TunnelId) -> Self {
         Self::Tunnel(id)
     }
-    pub fn new_error(error: TunnelError) -> Self {
+    pub fn _new_error(error: TunnelError) -> Self {
         Self::Error(error)
     }
     pub fn validate(&mut self, _validate_context: &RPCValidateContext) -> Result<(), RPCError> {

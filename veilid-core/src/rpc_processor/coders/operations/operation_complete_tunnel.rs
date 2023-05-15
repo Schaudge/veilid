@@ -9,7 +9,7 @@ pub struct RPCOperationCompleteTunnelQ {
 }
 
 impl RPCOperationCompleteTunnelQ {
-    pub fn new(id: TunnelId, local_mode: TunnelMode, depth: u8, endpoint: TunnelEndpoint) -> Self {
+    pub fn _new(id: TunnelId, local_mode: TunnelMode, depth: u8, endpoint: TunnelEndpoint) -> Self {
         Self {
             id,
             local_mode,
@@ -21,20 +21,20 @@ impl RPCOperationCompleteTunnelQ {
         Ok(())
     }
 
-    pub fn id(&self) -> TunnelId {
+    pub fn _id(&self) -> TunnelId {
         self.id
     }
 
-    pub fn local_mode(&self) -> TunnelMode {
+    pub fn _local_mode(&self) -> TunnelMode {
         self.local_mode
     }
-    pub fn depth(&self) -> u8 {
+    pub fn _depth(&self) -> u8 {
         self.depth
     }
-    pub fn endpoint(&self) -> &TunnelEndpoint {
+    pub fn _endpoint(&self) -> &TunnelEndpoint {
         &self.endpoint
     }
-    pub fn destructure(self) -> (TunnelId, TunnelMode, u8, TunnelEndpoint) {
+    pub fn _destructure(self) -> (TunnelId, TunnelMode, u8, TunnelEndpoint) {
         (self.id, self.local_mode, self.depth, self.endpoint)
     }
 
@@ -81,10 +81,10 @@ pub enum RPCOperationCompleteTunnelA {
 }
 
 impl RPCOperationCompleteTunnelA {
-    pub fn new_tunnel(tunnel: FullTunnel) -> Self {
+    pub fn _new_tunnel(tunnel: FullTunnel) -> Self {
         Self::Tunnel(tunnel)
     }
-    pub fn new_error(error: TunnelError) -> Self {
+    pub fn _new_error(error: TunnelError) -> Self {
         Self::Error(error)
     }
     pub fn validate(&mut self, _validate_context: &RPCValidateContext) -> Result<(), RPCError> {

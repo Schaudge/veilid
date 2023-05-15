@@ -8,7 +8,7 @@ pub struct RPCOperationStartTunnelQ {
 }
 
 impl RPCOperationStartTunnelQ {
-    pub fn new(id: TunnelId, local_mode: TunnelMode, depth: u8) -> Self {
+    pub fn _new(id: TunnelId, local_mode: TunnelMode, depth: u8) -> Self {
         Self {
             id,
             local_mode,
@@ -20,16 +20,16 @@ impl RPCOperationStartTunnelQ {
         Ok(())
     }
 
-    pub fn id(&self) -> TunnelId {
+    pub fn _id(&self) -> TunnelId {
         self.id
     }
-    pub fn local_mode(&self) -> TunnelMode {
+    pub fn _local_mode(&self) -> TunnelMode {
         self.local_mode
     }
-    pub fn depth(&self) -> u8 {
+    pub fn _depth(&self) -> u8 {
         self.depth
     }
-    pub fn destructure(self) -> (TunnelId, TunnelMode, u8) {
+    pub fn _destructure(self) -> (TunnelId, TunnelMode, u8) {
         (self.id, self.local_mode, self.depth)
     }
 
@@ -71,10 +71,10 @@ pub enum RPCOperationStartTunnelA {
 }
 
 impl RPCOperationStartTunnelA {
-    pub fn new_partial(partial_tunnel: PartialTunnel) -> Self {
+    pub fn _new_partial(partial_tunnel: PartialTunnel) -> Self {
         Self::Partial(partial_tunnel)
     }
-    pub fn new_error(tunnel_error: TunnelError) -> Self {
+    pub fn _new_error(tunnel_error: TunnelError) -> Self {
         Self::Error(tunnel_error)
     }
     pub fn validate(&mut self, _validate_context: &RPCValidateContext) -> Result<(), RPCError> {
