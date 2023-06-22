@@ -257,7 +257,7 @@ where
             apibail_internal!("record store not initialized");
         };
 
-        // If over size limit, dont create record
+        // If over size limit, don't create record
         let new_total_storage_space =
             self.total_storage_space + mem::size_of::<RecordTableKey>() + record.total_size();
         if let Some(max_storage_space_mb) = &self.limits.max_storage_space_mb {

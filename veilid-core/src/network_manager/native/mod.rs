@@ -342,7 +342,7 @@ impl Network {
 
     // See if our interface addresses have changed, if so we need to punt the network
     // and redo all our addresses. This is overkill, but anything more accurate
-    // would require inspection of routing tables that we dont want to bother with
+    // would require inspection of routing tables that we don't want to bother with
     async fn check_interface_addresses(&self) -> EyreResult<bool> {
         if !self.unlocked_inner.interfaces.refresh().await? {
             return Ok(false);

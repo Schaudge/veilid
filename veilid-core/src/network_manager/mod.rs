@@ -813,7 +813,7 @@ impl NetworkManager {
         // and if so, get the max version we can use
         let Some(envelope_version) = destination_node_ref.best_envelope_version() else {
             bail!(
-                "can't talk to this node {} because we dont support its envelope versions",
+                "can't talk to this node {} because we don't support its envelope versions",
                 node_ref
             );
         };

@@ -145,7 +145,7 @@ impl StorageManager {
     }
 
     /// Open an existing local record if it exists,
-    /// and if it doesnt exist locally, try to pull it from the network and
+    /// and if it doesn't exist locally, try to pull it from the network and
     /// open it and return the opened descriptor
     pub async fn open_record(
         &self,
@@ -168,7 +168,7 @@ impl StorageManager {
             apibail_try_again!();
         };
 
-        // Drop the mutex so we dont block during network access
+        // Drop the mutex so we don't block during network access
         drop(inner);
 
         // No last descriptor, no last value

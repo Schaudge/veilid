@@ -152,7 +152,7 @@ impl RPCProcessor {
     ) -> Result<NetworkResult<()>, RPCError> {
         // Get sender id of the peer with the crypto kind of the route
         let Some(sender_id) = detail.peer_noderef.node_ids().get(pr_pubkey.kind) else {
-            return Ok(NetworkResult::invalid_message("route node doesnt have a required crypto kind for routed operation"));
+            return Ok(NetworkResult::invalid_message("route node doesn't have a required crypto kind for routed operation"));
         };
 
         // Look up the private route and ensure it's one in our spec store
