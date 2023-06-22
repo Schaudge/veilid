@@ -15,12 +15,10 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y -c clipp
 source "$HOME/.cargo/env"
 
 # Install Android SDK
-mkdir $HOME/Android; mkdir $HOME/Android/Sdk
+mkdir -p $HOME/Android/Sdk
 curl -o $HOME/Android/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9123335_latest.zip
-cd $HOME/Android; unzip $HOME/Android/cmdline-tools.zip
+cd $HOME/Android; unzip -o $HOME/Android/cmdline-tools.zip
 $HOME/Android/cmdline-tools/bin/sdkmanager --sdk_root=$HOME/Android/Sdk build-tools\;33.0.1 ndk\;25.1.8937393 cmake\;3.22.1 platform-tools platforms\;android-33 cmdline-tools\;latest emulator
-cd $HOME
-rm -rf $HOME/Android/cmdline-tools $HOME/Android/cmdline-tools.zip
 
 # Add environment variables
 cat >> $HOME/.profile <<END
