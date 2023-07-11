@@ -733,7 +733,7 @@ impl VeilidAPI {
 
         let message = get_debug_argument_at(
             &args,
-            0,
+            1,
             "debug_app_message",
             "message",
             get_data,
