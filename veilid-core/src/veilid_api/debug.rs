@@ -716,6 +716,47 @@ impl VeilidAPI {
         Ok(format!("{:#?}", out))
     }
 
+    async fn debug_app_message(&self, args: String) -> VeilidAPIResult<String> {
+        let netman = self.network_manager()?;
+        let routing_table = netman.routing_table();
+        let rpc = netman.rpc_processor();
+
+        let args: Vec<String> = args.split_whitespace().map(|s| s.to_owned()).collect();
+
+        let dest = get_debug_argument_at(
+            &args,
+            0,
+            "debug_app_message",
+            "destination",
+            get_destination(routing_table),
+        )?;
+
+        let message = get_debug_argument_at(
+            &args,
+            0,
+            "debug_app_message",
+            "message",
+            get_data,
+        )?;
+
+
+        // let out = format!("SEND MESSAGE {:#?}", message);
+        // Dump routing table entry
+        let out = match rpc
+            .rpc_call_app_message(dest, message)
+            .await
+            .map_err(VeilidAPIError::internal)?
+        {
+            NetworkResult::Value(v) => v,
+            r => {
+                return Ok(r.to_string());
+            }
+        };
+
+        Ok(format!("{:#?}", out))
+    }
+
+
     async fn debug_route_allocate(&self, args: Vec<String>) -> VeilidAPIResult<String> {
         // [ord|*ord] [rel] [<count>] [in|out] [avoid_node_id]
 
@@ -1376,6 +1417,8 @@ record list <local|remote>
                 self.debug_entry(rest).await
             } else if arg == "ping" {
                 self.debug_ping(rest).await
+            } else if arg == "app_message" {
+                self.debug_app_message(rest).await
             } else if arg == "contact" {
                 self.debug_contact(rest).await
             } else if arg == "nodeinfo" {
