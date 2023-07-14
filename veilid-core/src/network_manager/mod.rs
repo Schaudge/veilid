@@ -110,7 +110,7 @@ pub(crate) enum NodeContactMethod {
 }
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 struct NodeContactMethodCacheKey {
-    own_node_info_ts: Option<Timestamp>,
+    own_node_info_ts: Timestamp,
     target_node_info_ts: Timestamp,
     target_node_ref_filter: Option<NodeRefFilter>,
     target_node_ref_sequencing: Sequencing,
@@ -807,17 +807,6 @@ impl NetworkManager {
         body: B,
     ) -> EyreResult<NetworkResult<SendDataKind>> {
         let destination_node_ref = destination_node_ref.as_ref().unwrap_or(&node_ref).clone();
-
-        if !node_ref.same_entry(&destination_node_ref) {
-            log_net!(
-                "sending envelope to {:?} via {:?}",
-                destination_node_ref,
-                node_ref
-            );
-        } else {
-            log_net!("sending envelope to {:?}", node_ref);
-        }
-
         let best_node_id = destination_node_ref.best_node_id();
 
         // Get node's envelope versions and see if we can send to it
@@ -831,6 +820,17 @@ impl NetworkManager {
 
         // Build the envelope to send
         let out = self.build_envelope(best_node_id, envelope_version, body)?;
+
+        if !node_ref.same_entry(&destination_node_ref) {
+            log_net!(
+                "sending envelope to {:?} via {:?}, len={}",
+                destination_node_ref,
+                node_ref,
+                out.len()
+            );
+        } else {
+            log_net!("sending envelope to {:?}, len={}", node_ref, out.len());
+        }
 
         // Send the envelope via whatever means necessary
         self.send_data(node_ref, out).await

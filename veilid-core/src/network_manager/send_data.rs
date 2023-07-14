@@ -12,46 +12,55 @@ impl NetworkManager {
     /// Sending to a node requires determining a NetworkClass compatible mechanism
     pub fn send_data(
         &self,
-        target_node_ref: NodeRef,
+        destination_node_ref: NodeRef,
         data: Vec<u8>,
     ) -> SendPinBoxFuture<EyreResult<NetworkResult<SendDataKind>>> {
         let this = self.clone();
         Box::pin(
             async move {
                 // Get the best way to contact this node
-                let contact_method = this.get_node_contact_method(target_node_ref.clone())?;
+                let contact_method = this.get_node_contact_method(destination_node_ref.clone())?;
 
                 // If we need to relay, do it
-                let (contact_method, node_ref, relayed) = match contact_method {
+                let (contact_method, target_node_ref, relayed) = match contact_method {
                     NodeContactMethod::OutboundRelay(relay_nr)
                     | NodeContactMethod::InboundRelay(relay_nr) => {
                         let cm = this.get_node_contact_method(relay_nr.clone())?;
                         (cm, relay_nr, true)
                     }
-                    cm => (cm, target_node_ref.clone(), false),
+                    cm => (cm, destination_node_ref.clone(), false),
                 };
-
+                
                 #[cfg(feature = "verbose-tracing")]
                 debug!(
                     "ContactMethod: {:?} for {:?}",
-                    contact_method, target_node_ref
+                    contact_method, destination_node_ref
                 );
 
                 // Try the contact method
                 let sdk = match contact_method {
-                    NodeContactMethod::OutboundRelay(relay_nr)
+                    NodeContactMethod::OutboundRelay(relay_nr) => {
+                        // Relay loop or multiple relays
+                        bail!(
+                            "Outbound relay loop or multiple relays detected: destination {} resolved to target {} via extraneous relay {}",
+                            destination_node_ref,
+                            target_node_ref,
+                            relay_nr,
+                        );
+                
+                    }
                     | NodeContactMethod::InboundRelay(relay_nr) => {
                         // Relay loop or multiple relays
                         bail!(
-                            "Relay loop or multiple relays detected: {} -> {} -> {}",
+                            "Inbound relay loop or multiple relays detected: destination {} resolved to target {} via extraneous relay {}",
+                            destination_node_ref,
                             target_node_ref,
-                            node_ref,
-                            relay_nr
+                            relay_nr,
                         );
                     }
                     NodeContactMethod::Direct(dial_info) => {
                         network_result_try!(
-                            this.send_data_ncm_direct(node_ref, dial_info, data).await?
+                            this.send_data_ncm_direct(target_node_ref, dial_info, data).await?
                         )
                     }
                     NodeContactMethod::SignalReverse(relay_nr, target_node_ref) => {
@@ -267,7 +276,11 @@ impl NetworkManager {
                         connection_descriptor,
                     )));
                 }
-                Some(d) => d,
+                Some(d) => {
+                    // Connection couldn't send, kill it
+                    node_ref.clear_last_connection(connection_descriptor);
+                    d
+                }
             }
         } else {
             data
@@ -316,7 +329,7 @@ impl NetworkManager {
 
         // Node A is our own node
         // Use whatever node info we've calculated so far
-        let peer_a = routing_table.get_best_effort_own_peer_info(routing_domain);
+        let peer_a = routing_table.get_own_peer_info(routing_domain);
 
         // Node B is the target node
         let peer_b = match target_node_ref.make_peer_info(routing_domain) {
@@ -453,15 +466,18 @@ impl NetworkManager {
 
         // Get target routing domain
         let Some(routing_domain) = target_nr.best_routing_domain() else {
-            return Ok(NetworkResult::no_connection_other("No routing domain for target"));
+            return Ok(NetworkResult::no_connection_other("No routing domain for target for reverse connect"));
+        };
+
+        // Ensure we have a valid network class so our peer info is useful
+        if !self.routing_table().has_valid_network_class(routing_domain){
+            return Ok(NetworkResult::no_connection_other("Network class not yet valid for reverse connect"));
         };
 
         // Get our peer info
-        let Some(peer_info) = self
+        let peer_info = self
             .routing_table()
-            .get_own_peer_info(routing_domain) else {
-            return Ok(NetworkResult::no_connection_other("Own peer info not available"));
-        };
+            .get_own_peer_info(routing_domain);
 
         // Issue the signal
         let rpc = self.rpc_processor();
@@ -549,15 +565,18 @@ impl NetworkManager {
 
         // Get target routing domain
         let Some(routing_domain) = target_nr.best_routing_domain() else {
-            return Ok(NetworkResult::no_connection_other("No routing domain for target"));
+            return Ok(NetworkResult::no_connection_other("No routing domain for target for hole punch"));
+        };
+
+        // Ensure we have a valid network class so our peer info is useful
+        if !self.routing_table().has_valid_network_class(routing_domain){
+            return Ok(NetworkResult::no_connection_other("Network class not yet valid for hole punch"));
         };
 
         // Get our peer info
-        let Some(peer_info) = self
+        let peer_info = self
             .routing_table()
-            .get_own_peer_info(routing_domain) else {
-                return Ok(NetworkResult::no_connection_other("Own peer info not available"));
-            };
+            .get_own_peer_info(routing_domain);
 
         // Get the udp direct dialinfo for the hole punch
         let hole_punch_did = target_nr

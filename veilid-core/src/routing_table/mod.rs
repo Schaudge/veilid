@@ -463,6 +463,10 @@ impl RoutingTable {
         self.inner.read().relay_node(domain)
     }
 
+    pub fn relay_node_last_keepalive(&self, domain: RoutingDomain) -> Option<Timestamp> {
+        self.inner.read().relay_node_last_keepalive(domain)
+    }
+
     pub fn has_dial_info(&self, domain: RoutingDomain) -> bool {
         self.inner.read().has_dial_info(domain)
     }
@@ -545,27 +549,18 @@ impl RoutingTable {
     }
 
     /// Return a copy of our node's peerinfo
-    pub fn get_own_peer_info(&self, routing_domain: RoutingDomain) -> Option<PeerInfo> {
+    pub fn get_own_peer_info(&self, routing_domain: RoutingDomain) -> PeerInfo {
         self.inner.read().get_own_peer_info(routing_domain)
-    }
-
-    /// Return the best effort copy of our node's peerinfo
-    /// This may be invalid and should not be passed to other nodes,
-    /// but may be used for contact method calculation
-    pub fn get_best_effort_own_peer_info(&self, routing_domain: RoutingDomain) -> PeerInfo {
-        self.inner
-            .read()
-            .get_best_effort_own_peer_info(routing_domain)
     }
 
     /// If we have a valid network class in this routing domain, then our 'NodeInfo' is valid
     /// If this is true, we can get our final peer info, otherwise we only have a 'best effort' peer info
-    pub fn has_valid_own_node_info(&self, routing_domain: RoutingDomain) -> bool {
-        self.inner.read().has_valid_own_node_info(routing_domain)
+    pub fn has_valid_network_class(&self, routing_domain: RoutingDomain) -> bool {
+        self.inner.read().has_valid_network_class(routing_domain)
     }
 
     /// Return our current node info timestamp
-    pub fn get_own_node_info_ts(&self, routing_domain: RoutingDomain) -> Option<Timestamp> {
+    pub fn get_own_node_info_ts(&self, routing_domain: RoutingDomain) -> Timestamp {
         self.inner.read().get_own_node_info_ts(routing_domain)
     }
 
@@ -1031,7 +1026,7 @@ impl RoutingTable {
             .sort_and_clean_closest_noderefs(node_id, closest_nodes)
     }
 
-    #[instrument(level = "trace", skip(self, peers), ret)]
+    #[instrument(level = "trace", skip(self, peers))]
     pub fn register_find_node_answer(
         &self,
         crypto_kind: CryptoKind,
@@ -1061,7 +1056,7 @@ impl RoutingTable {
         out
     }
 
-    #[instrument(level = "trace", skip(self), ret, err)]
+    #[instrument(level = "trace", skip(self), err)]
     pub async fn find_node(
         &self,
         node_ref: NodeRef,
@@ -1083,7 +1078,7 @@ impl RoutingTable {
     }
 
     /// Ask a remote node to list the nodes it has around the current node
-    #[instrument(level = "trace", skip(self), ret, err)]
+    #[instrument(level = "trace", skip(self), err)]
     pub async fn find_self(
         &self,
         crypto_kind: CryptoKind,
@@ -1094,7 +1089,7 @@ impl RoutingTable {
     }
 
     /// Ask a remote node to list the nodes it has around itself
-    #[instrument(level = "trace", skip(self), ret, err)]
+    #[instrument(level = "trace", skip(self), err)]
     pub async fn find_target(
         &self,
         crypto_kind: CryptoKind,

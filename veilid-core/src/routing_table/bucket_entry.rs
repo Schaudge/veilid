@@ -23,10 +23,6 @@ const UNRELIABLE_PING_SPAN_SECS: u32 = 60;
 /// - Interval is the number of seconds between each ping
 const UNRELIABLE_PING_INTERVAL_SECS: u32 = 5;
 
-/// Keepalive pings are done occasionally to ensure holepunched public dialinfo
-/// remains valid, as well as to make sure we remain in any relay node's routing table
-const KEEPALIVE_PING_INTERVAL_SECS: u32 = 10;
-
 /// How many times do we try to ping a never-reached node before we call it dead
 const NEVER_REACHED_PING_COUNT: u32 = 3;
 
@@ -251,7 +247,6 @@ impl BucketEntryInner {
         *opt_current_sni = None;
     }
 
-    // Retuns true if the node info changed
     pub fn update_signed_node_info(
         &mut self,
         routing_domain: RoutingDomain,
@@ -293,6 +288,13 @@ impl BucketEntryInner {
         self.set_envelope_support(envelope_support);
         self.updated_since_last_network_change = true;
         self.touch_last_seen(get_aligned_timestamp());
+
+        // If we're updating an entry's node info, purge all 
+        // but the last connection in our last connections list
+        // because the dial info could have changed and its safer to just reconnect.
+        // The latest connection would have been the once we got the new node info
+        // over so that connection is still valid.
+        self.clear_last_connections_except_latest();
     }
 
     pub fn has_node_info(&self, routing_domain_set: RoutingDomainSet) -> bool {
@@ -409,9 +411,45 @@ impl BucketEntryInner {
             .insert(key, (last_connection, timestamp));
     }
 
+     // Removes a connection descriptor in this entry's table of last connections
+     pub fn clear_last_connection(&mut self, last_connection: ConnectionDescriptor) {
+        let key = self.descriptor_to_key(last_connection);
+        self.last_connections
+            .remove(&key);
+    }
+
     // Clears the table of last connections to ensure we create new ones and drop any existing ones
     pub fn clear_last_connections(&mut self) {
         self.last_connections.clear();
+    }
+
+    // Clears the table of last connections except the most recent one
+    pub fn clear_last_connections_except_latest(&mut self) {
+        if self.last_connections.len() == 0 {
+            // No last_connections
+            return;
+        }
+        let mut dead_keys = Vec::with_capacity(self.last_connections.len()-1);
+        let mut most_recent_connection = None;
+        let mut most_recent_connection_time = 0u64;
+        for (k, v) in &self.last_connections {
+            let lct = v.1.as_u64();
+            if lct > most_recent_connection_time {
+                most_recent_connection = Some(k);
+                most_recent_connection_time = lct;
+            }
+        }
+        let Some(most_recent_connection) = most_recent_connection else {
+            return;
+        };
+        for (k, _) in &self.last_connections {
+            if k != most_recent_connection {
+                dead_keys.push(k.clone());
+            }
+        }
+        for dk in dead_keys {
+            self.last_connections.remove(&dk);
+        }
     }
 
     // Gets all the 'last connections' that match a particular filter, and their accompanying timestamps of last use
@@ -636,15 +674,9 @@ impl BucketEntryInner {
     }
 
     // Check if this node needs a ping right now to validate it is still reachable
-    pub(super) fn needs_ping(&self, cur_ts: Timestamp, needs_keepalive: bool) -> bool {
+    pub(super) fn needs_ping(&self, cur_ts: Timestamp) -> bool {
         // See which ping pattern we are to use
         let state = self.state(cur_ts);
-
-        // If this entry needs a keepalive (like a relay node),
-        // then we should ping it regularly to keep our association alive
-        if needs_keepalive {
-            return self.needs_constant_ping(cur_ts, TimestampDuration::new(KEEPALIVE_PING_INTERVAL_SECS as u64 * 1000000u64));
-        }
 
         // If we don't have node status for this node, then we should ping it to get some node status
         for routing_domain in RoutingDomainSet::all() {

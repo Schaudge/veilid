@@ -176,7 +176,7 @@ impl DiscoveryContext {
             .routing_table
             .find_fast_public_nodes_filtered(node_count, filters);
         if peers.is_empty() {
-            log_net!(
+            log_net!(debug
                 "no external address detection peers of type {:?}:{:?}",
                 protocol_type,
                 address_type
@@ -195,7 +195,7 @@ impl DiscoveryContext {
                 return Some((sa, peer));
             }
         }
-        log_net!("no peers responded with an external address");
+        log_net!(debug "no peers responded with an external address");
         None
     }
 
@@ -622,37 +622,58 @@ impl Network {
         context: &DiscoveryContext,
         protocol_type: ProtocolType,
     ) -> EyreResult<()> {
+        let mut retry_count = {
+            let c = self.config.get();
+            c.network.restricted_nat_retries
+        };
+
         // Start doing ipv6 protocol
         context.protocol_begin(protocol_type, AddressType::IPV6);
 
-        log_net!(debug "=== update_ipv6_protocol_dialinfo {:?} ===", protocol_type);
-
-        // Get our external address from some fast node, call it node 1
-        if !context.protocol_get_external_address_1().await {
-            // If we couldn't get an external address, then we should just try the whole network class detection again later
-            return Ok(());
-        }
-
-        // If our local interface list doesn't contain external_1 then there is an Ipv6 NAT in place
-        {
-            let inner = context.inner.lock();
-            if !inner
-                .intf_addrs
-                .as_ref()
-                .unwrap()
-                .contains(inner.external_1_address.as_ref().unwrap())
-            {
-                // IPv6 NAT is not supported today
-                log_net!(warn
-                    "IPv6 NAT is not supported for external address: {}",
-                    inner.external_1_address.unwrap()
-                );
+        // Loop for restricted NAT retries
+        loop {
+            log_net!(debug
+                "=== update_ipv6_protocol_dialinfo {:?} tries_left={} ===",
+                protocol_type,
+                retry_count
+            );
+            // Get our external address from some fast node, call it node 1
+            if !context.protocol_get_external_address_1().await {
+                // If we couldn't get an external address, then we should just try the whole network class detection again later
                 return Ok(());
             }
-        }
 
-        // No NAT
-        context.protocol_process_no_nat().await?;
+            // If our local interface list contains external_1 then there is no NAT in place
+            {
+                let res = {
+                    let inner = context.inner.lock();
+                    inner
+                        .intf_addrs
+                        .as_ref()
+                        .unwrap()
+                        .contains(inner.external_1_address.as_ref().unwrap())
+                };
+                if res {
+                    // No NAT
+                    context.protocol_process_no_nat().await?;
+
+                    // No more retries
+                    break;
+                }
+            }
+
+            // There is -some NAT-
+            if context.protocol_process_nat().await? {
+                // We either got dial info or a network class without one
+                break;
+            }
+
+            // If we tried everything, break anyway after N attempts
+            if retry_count == 0 {
+                break;
+            }
+            retry_count -= 1;
+        }
 
         Ok(())
     }
@@ -912,6 +933,7 @@ impl Network {
             // Network class could not be determined
             editor.clear_dial_info_details();
             editor.set_network_class(None);
+            editor.clear_relay_node();
             changed = true;
             log_net!(debug "PublicInternet network class cleared");
         }
@@ -922,8 +944,8 @@ impl Network {
                 punish();
             }
         } else {
-            // Send updates to everyone
-            editor.commit().await;
+            // Commit updates
+            editor.commit();
         }
 
         Ok(())

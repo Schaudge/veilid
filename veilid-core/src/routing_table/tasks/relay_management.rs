@@ -9,10 +9,7 @@ impl RoutingTable {
         _last_ts: Timestamp,
         cur_ts: Timestamp,
     ) -> EyreResult<()> {
-        // Get our node's current node info and network class and do the right thing
-        let Some(own_peer_info) = self.get_own_peer_info(RoutingDomain::PublicInternet) else {
-            return Ok(());
-        };
+        let own_peer_info = self.get_own_peer_info(RoutingDomain::PublicInternet);
         let own_node_info = own_peer_info.signed_node_info().node_info();
         let network_class = own_node_info.network_class();
         let relay_node_filter = self.make_public_internet_relay_node_filter();
@@ -47,6 +44,15 @@ impl RoutingTable {
                     );
                     editor.clear_relay_node();
                     false
+                }
+                // Should not have relay for invalid network class
+                else if !self.has_valid_network_class(RoutingDomain::PublicInternet) {
+                    info!(
+                        "Invalid network class does not get a relay, dropping relay {}",
+                        relay_node
+                    );
+                    editor.clear_relay_node();
+                    false
                 } else {
                     true
                 }
@@ -69,7 +75,7 @@ impl RoutingTable {
                         false,
                     ) {
                         Ok(nr) => {
-                            log_rtab!("Outbound relay node selected: {}", nr);
+                            info!("Outbound relay node selected: {}", nr);
                             editor.set_relay_node(nr);
                             got_outbound_relay = true;
                         }
@@ -77,6 +83,8 @@ impl RoutingTable {
                             log_rtab!(error "failed to register node with peer info: {}", e);
                         }
                     }
+                } else {
+                    info!("Outbound relay desired but not available");
                 }
             }
             if !got_outbound_relay {
@@ -89,7 +97,7 @@ impl RoutingTable {
         }
 
         // Commit the changes
-        editor.commit().await;
+        editor.commit();
 
         Ok(())
     }
