@@ -1,145 +1,141 @@
+# You can override the included template(s) by including variable overrides
+# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
+# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
+# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
+# Note that environment variables can be set in several places
+# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 variables:
   NO_DOCKER: 1
   FORCE_COLOR: 1
   EARTHLY_EXEC_CMD: "/bin/sh"
   GIT_SUBMODULE_STRATEGY: normal
-
 stages:
-  - test
-  - build_packages
-  - release
-  - distribute
-
-#before_script:
-#  - earthly bootstrap
-
+- test
+- build_packages
+- release
+- distribute
 create_test_machine:
   stage: test
   only:
-    - main
-    - merge_requests
+  - main
+  - merge_requests
   tags:
-    - build-orchestration
+  - build-orchestration
   script:
-    - /home/gitlab-runner/build-machine-ctl.sh create amd64-deb
+  - "/home/gitlab-runner/build-machine-ctl.sh create amd64-deb"
   when: manual
-
 test_amd64:
   stage: test
   image: earthly/earthly:v0.6.30
   only:
-    - main
-    - merge_requests
+  - main
+  - merge_requests
   needs:
-    - create_test_machine
+  - create_test_machine
   tags:
-    - earthly-tests
+  - earthly-tests
   script:
-    - earthly bootstrap
-    - earthly --ci +unit-tests-linux-amd64
-
+  - earthly bootstrap
+  - earthly --ci +unit-tests-linux-amd64
 delete_test_machine:
   stage: test
   only:
-    - main
-    - merge_requests
+  - main
+  - merge_requests
   needs:
-    - test_amd64
+  - test_amd64
   tags:
-    - build-orchestration
+  - build-orchestration
   script:
-    - /home/gitlab-runner/build-machine-ctl.sh delete amd64-deb
-
+  - "/home/gitlab-runner/build-machine-ctl.sh delete amd64-deb"
 release_job:
   stage: release
-  image: registry.gitlab.com/gitlab-org/release-cli:latest        
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
   script:
-    - echo "running release_job"
-  release:                               # See https://docs.gitlab.com/ee/ci/yaml/#release for available properties
-    tag_name: '$CI_COMMIT_TAG'
-    description: '$CI_COMMIT_TAG'
+  - echo "running release_job"
+  release:
+    tag_name: "$CI_COMMIT_TAG"
+    description: "$CI_COMMIT_TAG"
   rules:
-    - if: '$CI_COMMIT_TAG =~ /v\d.+/'
-
+  - if: "$CI_COMMIT_TAG =~ /v\\d.+/"
 create_build_machines:
   stage: build_packages
   tags:
-    - build-orchestration
+  - build-orchestration
   script:
-    - /home/gitlab-runner/build-machine-ctl.sh create amd64-deb
-    - /home/gitlab-runner/build-machine-ctl.sh create arm64-deb
-    - /home/gitlab-runner/build-machine-ctl.sh create amd64-rpm
+  - "/home/gitlab-runner/build-machine-ctl.sh create amd64-deb"
+  - "/home/gitlab-runner/build-machine-ctl.sh create arm64-deb"
+  - "/home/gitlab-runner/build-machine-ctl.sh create amd64-rpm"
   rules:
-    - if: '$CI_COMMIT_TAG =~ /v\d.+/'
-  
+  - if: "$CI_COMMIT_TAG =~ /v\\d.+/"
 package_amd64_deb:
   stage: build_packages
   needs:
-    - create_build_machines
+  - create_build_machines
   tags:
-    - build-amd64-deb
+  - build-amd64-deb
   script:
-    - earthly bootstrap
-    - earthly +package-linux-amd64-deb
-    - /home/gitlab-runner/scp-to-orchestrator.sh
+  - earthly bootstrap
+  - earthly +package-linux-amd64-deb
+  - "/home/gitlab-runner/scp-to-orchestrator.sh"
   rules:
-    - if: '$CI_COMMIT_TAG =~ /v\d.+/'
-  
+  - if: "$CI_COMMIT_TAG =~ /v\\d.+/"
 package_arm64_deb:
   stage: build_packages
   needs:
-    - create_build_machines
+  - create_build_machines
   tags:
-    - build-arm64-deb
+  - build-arm64-deb
   script:
-    - earthly bootstrap
-    - earthly +package-linux-arm64-deb
-    - /home/gitlab-runner/scp-to-orchestrator.sh
+  - earthly bootstrap
+  - earthly +package-linux-arm64-deb
+  - "/home/gitlab-runner/scp-to-orchestrator.sh"
   rules:
-    - if: '$CI_COMMIT_TAG =~ /v\d.+/'
-
+  - if: "$CI_COMMIT_TAG =~ /v\\d.+/"
 package_amd64_rpm:
   stage: build_packages
   needs:
-    - create_build_machines
+  - create_build_machines
   tags:
-    - build-amd64-rpm
+  - build-amd64-rpm
   script:
-    - earthly bootstrap
-    - earthly +package-linux-amd64-rpm
-    - /home/gitlab-runner/scp-to-orchestrator.sh
+  - earthly bootstrap
+  - earthly +package-linux-amd64-rpm
+  - "/home/gitlab-runner/scp-to-orchestrator.sh"
   rules:
-    - if: '$CI_COMMIT_TAG =~ /v\d.+/'
-
+  - if: "$CI_COMMIT_TAG =~ /v\\d.+/"
 build_repositories:
   stage: distribute
   tags:
-    - build-orchestration
+  - build-orchestration
   script:
-    - /home/gitlab-runner/distribute-packages.sh
+  - "/home/gitlab-runner/distribute-packages.sh"
   rules:
-    - if: '$CI_COMMIT_TAG =~ /v\d.+/'
-
+  - if: "$CI_COMMIT_TAG =~ /v\\d.+/"
 deploy_repos:
   stage: distribute
   needs:
-    - build_repositories
-  tags: 
-    - repo-server
-  script: 
-    - /home/gitlab-runner/deploy-repo.sh
+  - build_repositories
+  tags:
+  - repo-server
+  script:
+  - "/home/gitlab-runner/deploy-repo.sh"
   rules:
-    - if: '$CI_COMMIT_TAG =~ /v\d.+/'
-
+  - if: "$CI_COMMIT_TAG =~ /v\\d.+/"
 delete_build_machines:
   stage: distribute
   needs:
-    - deploy_repos
+  - deploy_repos
   tags:
-    - build-orchestration
+  - build-orchestration
   script:
-    - /home/gitlab-runner/build-machine-ctl.sh delete amd64-deb
-    - /home/gitlab-runner/build-machine-ctl.sh delete arm64-deb
-    - /home/gitlab-runner/build-machine-ctl.sh delete amd64-rpm
+  - "/home/gitlab-runner/build-machine-ctl.sh delete amd64-deb"
+  - "/home/gitlab-runner/build-machine-ctl.sh delete arm64-deb"
+  - "/home/gitlab-runner/build-machine-ctl.sh delete amd64-rpm"
   rules:
-    - if: '$CI_COMMIT_TAG =~ /v\d.+/'
+  - if: "$CI_COMMIT_TAG =~ /v\\d.+/"
+sast:
+  stage: test
+include:
+- template: Security/SAST.gitlab-ci.yml
