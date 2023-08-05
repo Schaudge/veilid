@@ -160,7 +160,8 @@ async def keygen(host: str, port: int):
     keys["self"] = my_keypair
     config.write_keys(keys)
 
-    print(f"Your new public key is {my_keypair.key()}. Share it with your friends!")
+    print(f"Your new public key is: {my_keypair.key()}")
+    print("Share it with your friends!")
 
 
 async def add_friend(host: str, port: int, name: str, pubkey: str):
