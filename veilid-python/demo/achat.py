@@ -6,6 +6,7 @@ import argparse
 import asyncio
 import sys
 import termios
+import time
 from select import select
 from typing import Optional
 
@@ -80,6 +81,7 @@ async def chatter(
     send_buf = ""
     me_prompt = "Me> "
     qprint(me_prompt)
+    next_poll_time = 0.0
     try:
         while True:
             if (c := getch()) is not None:
@@ -94,9 +96,14 @@ async def chatter(
                 else:
                     qprint(c)
                     send_buf += c
+                    continue
+
+            if time.time() < next_poll_time:
+                continue
 
             # Try to get an updated version of the receiving subkey.
-            resp = await router.get_dht_value(key, recv_subkey, False)
+            resp = await router.get_dht_value(key, recv_subkey, True)
+            next_poll_time = time.time() + 2
             if resp is None:
                 continue
 
