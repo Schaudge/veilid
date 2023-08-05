@@ -20,7 +20,7 @@ First, run `veilid-server`. This demo tries to connect to localhost port 5959 by
 Back in this directory (`veilid/veilid-python/demo`), run:
 
 ```console
-$ poetry run python chat.py keygen
+$ poetry run ./chat.py keygen
 Your new public key is: d3aDb3ef
 Share it with your friends!
 ```
@@ -32,13 +32,13 @@ Copy the public key and send it to a friend you want to chat with. Have your fri
 Now, add your friend's public key to your keyring:
 
 ```console
-$ poetry run python chat.py add-friend MyFriend L0nGkEyStR1ng
+$ poetry run ./chat.py add-friend MyFriend L0nGkEyStR1ng
 ```
 
 To start a chat with that friend:
 
 ```console
-$ poetry run python chat.py start MyFriend
+$ poetry run ./chat.py start MyFriend
 New chat key: VLD0:abcd1234
 Give that to your friend!
 SEND>
@@ -47,7 +47,7 @@ SEND>
 Copy that chat key and send it to your chat partner. They can respond to your chat:
 
 ```console
-$ poetry run python chat.py respond CoolBuddy VLD0:abcd1234
+$ poetry run ./chat.py respond CoolBuddy VLD0:abcd1234
 SEND>
 ```
 
@@ -57,7 +57,7 @@ Remember that this simplified program can only receive a message when it's not w
 
 ## Sequence diagram
 
-Here's how the program generates keys, uses Diffie-Hellman (DH) algorithm to calculate shared keys, reads from and writes to the DHT, and uses encryption with nonces to secure messages in the public network.
+Here's how the program generates keys, uses the Diffie-Hellman (DH) algorithm to calculate shared keys, reads from and writes to the DHT, and uses encryption with nonces to secure messages in the public network.
 
 <!--use:mermaid-->
 
